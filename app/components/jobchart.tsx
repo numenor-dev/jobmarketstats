@@ -3,8 +3,8 @@
 import GetData from '../api/getdata';
 import { useState, useEffect } from 'react';
 import {
-    AreaChart,
-    Area,
+    LineChart,
+    Line,
     CartesianGrid,
     XAxis,
     YAxis,
@@ -15,23 +15,36 @@ import {
 
 export default function JobChart() {
 
-    type MergedItem = { month: string; layoffs: number; creations?: number | null };
+    type MergedItem = { year: string; layoffs: number; creations?: number | null };
 
     const [mergedData, setMergedData] = useState<MergedItem[] | null>(null);
     const [showCreationData, setShowCreationData] = useState(false);
+    const [showDollarData, setShowDollarData] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         GetData()
-            .then(({ layoffData, creationData }) => {
-                const layoffs = [...layoffData].reverse();
-                const creations = [...creationData].reverse();
+            .then(({ layoffTotal, creationTotal, rateData }) => {
+                const layoffs = Array.isArray(layoffTotal) ? layoffTotal : [];
+                const creations = Array.isArray(creationTotal) ? creationTotal : [];
+
+                const toNumberOrNull = (v: string | number | null | undefined) => {
+                    if (v == null) return null;
+                    const n = Number(v);
+                    return Number.isFinite(n) ? n : null;
+                };
+
+                const usdRate = rateData?.rates?.USD ?? null;
 
                 const merged = layoffs.map((l, i) => ({
-                    month: l.month,
-                    layoffs: l.layoffs,
-                    creations: creations[i]?.creations ?? null,
+                    year: String(l.year),
+                    layoffs: (() => {
+                        const n = Number(l.layoffs);
+                        return Number.isFinite(n) ? n : 0;
+                    })(),
+                    creations: toNumberOrNull(creations[i]?.creations ?? null),
+                    usdValue: usdRate
                 }));
 
                 setMergedData(merged);
@@ -51,27 +64,28 @@ export default function JobChart() {
 
     return (
         <section className="flex flex-col max-w-8xl mx-auto">
-            <h1 className="text-2xl font-sans mx-auto font-light mt-20 mb-16">Layoffs and job creations since 2024 in the US</h1>
+            <h1 className="text-2xl font-sans mx-auto font-light mt-20 mb-16">Layoffs and job creations since 2010 in the US</h1>
 
             {/* Chart */}
             <div className="max-w-6xl w-screen bg-white rounded-xl px-10 py-16 shadow-lg mb-40">
                 <ResponsiveContainer width="100%" aspect={2}>
-                    <AreaChart responsive data={mergedData ?? []}>
+                    <LineChart responsive data={mergedData ?? []}>
                         <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
-                        <XAxis dataKey="month" />
+                        <XAxis dataKey="year" />
                         <YAxis />
                         <Tooltip />
                         <Legend />
 
-                        <Area
+                        <Line
                             type="monotone"
                             dataKey="layoffs"
                             name="Job Layoffs"
-                            fill="#B34332"
+                            stroke="red"
+                            strokeWidth={2}
                         />
 
                         {showCreationData && (
-                            <Area
+                            <Line
                                 type="monotone"
                                 dataKey="creations"
                                 name="Job Creations"
@@ -79,17 +93,35 @@ export default function JobChart() {
                                 strokeWidth={2}
                             />
                         )}
-                    </AreaChart>
+                        {showDollarData && (
+                            <Line
+                                type="monotone"
+                                dataKey="usdValue"
+                                name="USD Value"
+                                stroke="#0077ff"
+                                strokeWidth={2}
+                                dot={false}
+                            />
+                        )}
+                    </LineChart>
                 </ResponsiveContainer>
 
                 {/* Toggle */}
-                <label className="flex mt-10 ml-10">
+                <label className="flex w-56 mt-10 ml-10">
                     <input
                         type="checkbox"
                         checked={showCreationData}
                         onChange={() => setShowCreationData(!showCreationData)}
                     />
-                    <span className="font-sans text-md ml-2">Show job creation data</span>
+                    <span className="font-sans text-md ml-2">Show job creations</span>
+                </label>
+                <label className="flex w-56 mt-7 ml-10">
+                    <input
+                        type="checkbox"
+                        checked={showDollarData}
+                        onChange={() => setShowDollarData(!showDollarData)}
+                    />
+                    <span className="font-sans text-md ml-2">Show US dollar value</span>
                 </label>
             </div>
         </section>

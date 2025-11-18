@@ -1,61 +1,99 @@
 'use server';
 
 export default async function GetData() {
-    
+
     const jobDataUrl = "https://api.bls.gov/publicAPI/v2/timeseries/data/";
 
-    const requestBody = {
+    const exchangeRateUrl = `http://api.exchangeratesapi.io/v1/latest?access_key=${process.env.EXCHANGE_KEY}`;
+
+    const jobRequestBody = {
         seriesid: ["LAUCN040010000000005", "LAUCN040010000000006"],
-        startyear: "2024",
+        startyear: "2010",
         endyear: "2025",
         registrationKey: process.env.JOLT_KEY
     };
 
-    const res = await fetch(jobDataUrl, {
+    const jobRes = await fetch(jobDataUrl, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
             Accept: "application/json",
             "Cache-Control": "no-store",
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(jobRequestBody),
     });
 
-    if (!res.ok) {
-        const text = await res.text();
-        throw new Error(`API error: ${res.status} ${text}`);
+    const rateRes = await fetch(exchangeRateUrl, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+        }
+    });
+
+    if (!jobRes.ok) {
+        const text = await jobRes.text();
+        throw new Error(`API error: ${jobRes.status} ${text}`);
     }
 
-    const data = await res.json();
+    if (!rateRes.ok) {
+        const text = await rateRes.text();
+        throw new Error(`API error: ${rateRes.status} ${text}`);
+    }
 
-    if (!data.Results || !data.Results.series) {
-        console.error("BLS error:", data);
+    const jobData = await jobRes.json();
+
+    const rateData = await rateRes.json();
+
+    if (!jobData.Results?.series) {
+        console.error("Unexpected BLS format:", jobData);
+        return { layoffTotals: [], creationTotals: [] }
+    }
+
+    if (!rateData.Results) {
+        console.error("Treasury error:", rateData)
     }
 
     type SeriesDatum = {
-        periodName: string;
         year: string;
         value: string;
     };
 
-    const series = data.Results.series;
+    const series = jobData.Results.series;
 
     const layoffSeries = series.find((s: { seriesID: string }) => s.seriesID === "LAUCN040010000000005");
     const creationSeries = series.find((s: { seriesID: string }) => s.seriesID === "LAUCN040010000000006");
 
-    const layoffData = layoffSeries.data.map((d: SeriesDatum) => ({
-        month: `${d.periodName} ${d.year}`,
-        layoffs: Number(d.value),
-    }));
-
-    const creationData = creationSeries.data.map((d: SeriesDatum) => ({
-        month: `${d.periodName} ${d.year}`,
-        creations: Number(d.value),
-    }));
-
-
-    return {
-        layoffData,
-        creationData
+    if (!layoffSeries || !creationSeries) {
+        throw new Error("One or both BLS series not found");
     }
+
+    const totalByYear = (data: SeriesDatum[], field: string) => {
+    const yearlyTotals: Record<string, number> = {};
+
+    data.forEach(d => {
+      const year = d.year;
+      const value = Number(d.value);
+
+      if (!Number.isFinite(value)) return;
+
+      if (yearlyTotals[year] === undefined) yearlyTotals[year] = 0;
+      yearlyTotals[year] += value;
+    });
+
+    return Object.entries(yearlyTotals)
+      .map(([year, total]) => ({
+        year,
+        [field]: total,
+      }))
+      .sort((a, b) => Number(a.year) - Number(b.year));
+  };
+
+  const layoffTotal = totalByYear(layoffSeries.data, "layoffs");
+  const creationTotal = totalByYear(creationSeries.data, "creations");
+
+  return {
+    layoffTotal,
+    creationTotal,
+    rateData
+  };
 }
