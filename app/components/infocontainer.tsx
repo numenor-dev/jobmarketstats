@@ -8,11 +8,12 @@ export default function InfoContainer() {
     const [isVisible, setIsVisible] = useState<boolean>(false);
 
     const handleClick = () => {
-        if (!isVisible) {
-            setIsVisible(true);
-        }
         setIsVisible(!isVisible);
     }
+
+    const MoreInfoProps = {
+        visible: isVisible
+    };
 
     return (
         <div>
@@ -38,7 +39,7 @@ export default function InfoContainer() {
                     More Info
                 </p>
             </span>
-            {isVisible && <MoreInfo />}
+            {isVisible && <MoreInfo {...MoreInfoProps} />}
         </div>
     )
 
