@@ -116,7 +116,7 @@ export default function JobChart() {
 
     return (
         <section className="flex flex-col max-w-8xl md:mx-auto sm:mx-10">
-            <div className="xl:max-w-7xl lg:max-w-5xl md:max-w-3xl w-screen bg-white rounded-xl px-10 py-16 shadow-lg mb-20">
+            <div className="xl:max-w-7xl lg:max-w-5xl lg:px-10 md:max-w-3xl w-screen bg-white rounded-xl px-4 py-16 shadow-lg mb-20">
                 <ResponsiveContainer width="100%" aspect={2}>
                     <LineChart data={mergedData ?? []}>
                         <CartesianGrid stroke="#eee" strokeDasharray="5 5" />

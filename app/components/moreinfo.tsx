@@ -7,58 +7,61 @@ type MoreInfoProps = {
 export default function MoreInfo({ visible }: MoreInfoProps) {
 
     const style = {
-        paragraph: "mt-3 font-sans text-lg"
+        text: "mt-3 font-sans text-lg"
     };
 
     return (
-        <div>
+        <div className="flex flex-col md:mx-auto mx-5">
             {visible && (
                 <motion.h1
-                    key={visible ? "visible" : "hidden"}
-                    initial={{ opacity: 0, backgroundColor: "rgba(255,255,0,0)" }}
-                    animate={{
-                        opacity: 1,
-                        backgroundColor: [
-                            "rgba(255,255,0,0)",
-                            "rgba(255,255,0,0.4)",
-                            "rgba(255,255,0,0)"
-                        ]
+                    key="moreinfo"
+                    initial="hidden"
+                    animate="visible"
+                    exit="hidden"
+                    variants={{
+                        hidden: {},
+                        visible: {}
                     }}
-                    transition={{
-                        duration: 3,
-                        ease: "easeOut",
-                        backgroundColor: {
-                            duration: 1.4,
-                            ease: "easeOut"
-                        }
-                    }}
-                    className="font-sans p-2 rounded-md text-3xl mt-10"
+                    className="relative font-sans p-2 rounded-md text-3xl mt-10 overflow-hidden"
                 >
-                    This chart visualizes four major economic indicators in the US from 2010 to 2025:
+                    {/* Highlight layer */}
+                    <motion.span
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{
+                            duration: 1.7,
+                            ease: "easeOut"
+                        }}
+                        className="absolute inset-0 bg-yellow-400/50 w-[1090px]"
+                        style={{ transformOrigin: "left" }}
+                    />
+                    <span className="relative z-10">
+                        This chart visualizes four major economic indicators in the US from 2010 to 2025:
+                    </span>
                 </motion.h1>
             )}
 
             <h2 className="font-sans text-2xl mt-10 text-red-600">1. Job layoffs:</h2>
-            <p className={style.paragraph}>
+            <p className={style.text}>
                 This line shows the total number of layoffs each year based on Bureau of Labor Statistics (BLS) data.
                 Higher points represent years when more people lost jobs, often coinciding with major economic downturns (e.g., recessions, market corrections, global events).
             </p>
 
             <h2 className="font-sans text-2xl mt-10 text-green-600">2. Job creations:</h2>
-            <p className={style.paragraph}>
+            <p className={style.text}>
                 This line represents the total number of new jobs added each year.
                 Tracking job creation alongside layoffs gives a clearer picture of whether the labor market is expanding or contracting.
             </p>
 
             <h2 className="font-sans text-2xl mt-10 text-amber-900">3. Consumer Price Index (CPI), normalized:</h2>
-            <p className={style.paragraph}>
+            <p className={style.text}>
                 The CPI line reflects inflation, showing how the cost of goods and services has changed over time.
                 The values are normalized between 0 and 1 so they can appear on the same chart without being overshadowed by layoff/creation numbers.
                 A rising CPI indicates increasing living costs (inflation).
             </p>
 
             <h2 className="font-sans text-2xl mt-10 text-blue-600">4. Dollar Value Over Time:</h2>
-            <p className={style.paragraph}>
+            <p className={style.text}>
                 This line tracks the relative strength of the U.S. dollar using CPI values, with 2010 set as the baseline.
                 Values above 1 mean the dollar was stronger than in 2010; values below 1 mean it had less purchasing power.
             </p>

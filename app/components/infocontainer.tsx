@@ -18,7 +18,7 @@ export default function InfoContainer() {
     return (
         <div>
             <span
-                className="w-32 cursor-pointer group flex items-center font-sans -ml-5"
+                className="md:-ml-5 ml-0 flex w-38 cursor-pointer group items-center font-sans"
                 onClick={handleClick}
             >
                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -34,7 +34,7 @@ export default function InfoContainer() {
                 </svg>
 
                 <p
-                    className="text-xl underline transition-transform duration-500 ease-in-out group-hover:translate-x-4"
+                    className="text-2xl font-semibold underline transition-transform duration-500 ease-in-out group-hover:translate-x-4"
                 >
                     More Info
                 </p>
