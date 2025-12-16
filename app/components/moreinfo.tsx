@@ -70,16 +70,23 @@ export default function MoreInfo({ visible }: MoreInfoProps) {
 
             <span>
                 <h2 className="font-sans text-xl mt-10">Layoffs vs. Creations:</h2>
-                <p>Comparing both shows whether the economy is gaining or losing overall employment.</p>
+                <p>Comparing both shows whether the economy is gaining or losing overall employment. If job creation is equal to or less than job
+                    layoffs, it indicates a shrinking job market and underlying economic issues.
+                </p>
 
                 <h2 className="font-sans text-xl mt-10">Inflation’s Role:</h2>
-                <p>CPI helps explain why job numbers alone don’t tell the full story—higher wages don’t help much if prices rise faster.</p>
+                <p>CPI helps illustrate the true mathematical level of inflation. If a person receives an annual raise of 4% but inflation is at 6%, their real income effectively decreases by 2%.
+                </p>
 
                 <h2 className="font-sans text-xl mt-10">Dollar Strength:</h2>
-                <p>Shows how much purchasing power the average consumer has lost or gained over the years.</p>
-
-                <h2 className="font-sans text-xl mt-10">Full Economic Context:</h2>
-                <p>When viewed together, these indicators reveal how the labor market and inflation interact to shape real economic conditions for workers.</p>
+                <p>Shows how much purchasing power the average consumer has lost or gained over the years. In 2010, $100 dollars has the same purchasing power as $145.65 today
+                    (<a
+                        href="https://www.bls.gov/data/inflation_calculator.htm"
+                        className="underline text-blue-500"
+                    >
+                        Inflation Calculator
+                    </a>).
+                    That means since 2010, the US dollar purchasing power has decreased by roughly 45%. If you want to buy a new watch for $100 in 2010, that same watch will cost $145 today. </p>
             </span>
         </div>
     );
