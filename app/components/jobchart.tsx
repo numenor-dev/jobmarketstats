@@ -200,7 +200,7 @@ export default function JobChart() {
                     <span className="font-sans text-md ml-2">Show US dollar value</span>
                 </label>
             </div>
-            <div className="flex flex-col xl:max-w-7xl lg:max-w-5xl md:max-w-3xl mb-20 bg-slate-200 px-20 py-16 rounded-xl shadow-lg">
+            <div className="flex flex-col xl:max-w-7xl lg:max-w-5xl md:max-w-3xl mb-20 bg-slate-200 px-12 py-14 rounded-xl shadow-lg">
                 <InfoContainer />
             </div>
         </section>
