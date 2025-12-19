@@ -1,3 +1,5 @@
+'use client';
+
 import { motion } from "framer-motion";
 
 type MoreInfoProps = {
@@ -15,7 +17,7 @@ export default function MoreInfo({ visible }: MoreInfoProps) {
     };
 
     return (
-        <div className="flex flex-col md:mx-auto mb-4">
+        <div className="flex flex-col md:mx-auto mb-8">
             {visible && (
                 <motion.h1
                     key="moreinfo"
@@ -99,17 +101,20 @@ export default function MoreInfo({ visible }: MoreInfoProps) {
             {/* Section 3 */}
             <h2 className={style.headerText}>Why does inflation even occur?</h2>
 
-            <h3 className="font-sans font-semibold text-2xl mt-4">Excessive money printing by central banks:</h3>
+            <h3 className="font-sans font-semibold text-2xl mt-4">Excessive money creation by central banks:</h3>
             <p className={style.inflationText}>
                 When the total amount of money grows faster
                 than the production of goods and services, more dollars compete for the same amount of goods.
-                Over time, this reduces the purchasing power of each dollar and contributes to higher prices.&nbsp;
+                Over time, this reduces the purchasing power of each dollar and contributes to higher prices.
+                Since 2010, over $10 trillion has been created physically and digitally. For reference, it took
+                over 200 years to create the first $12 trillion.&nbsp;
                 <a
-                    href="https://www.federalreserve.gov/monetarypolicy.htm"
+                    href="https://fred.stlouisfed.org/series/M2SL"
                     className={style.linkText}
                     target="_blank"
-                    rel="noopener noreferrer">
-                    Source: Federal Reserve
+                    rel="noopener noreferrer"
+                >
+                    Source: Federal Reserve Economic Data (FRED)
                 </a>
             </p>
 

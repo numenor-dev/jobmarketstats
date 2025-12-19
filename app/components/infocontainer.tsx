@@ -1,54 +1,53 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import MoreInfo from './moreinfo';
 
 export default function InfoContainer() {
+    const [isVisible, setIsVisible] = useState(false);
+    const ref = useRef<HTMLDivElement | null>(null);
 
-    const [isVisible, setIsVisible] = useState<boolean>(false);
+    useEffect(() => {
+        const element = ref.current;
+        if (!element) return;
 
-    const handleClick = () => {
-        setIsVisible(!isVisible);
-    }
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setIsVisible(true);
+                    observer.unobserve(entry.target);
+                }
+            },
+            { threshold: 1 }
+        );
 
-    const MoreInfoProps = {
-        visible: isVisible
-    };
+        observer.observe(element);
+
+        return () => observer.disconnect();
+    }, []);
 
     return (
-        <div className="flex flex-col items-center">
-            <span
-                onClick={handleClick}
-                className="group flex flex-col items-center cursor-pointer font-sans"
-            >
-                <p className="text-3xl font-bold underline">
-                    More Info
-                </p>
-
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none" viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="
-                size-6
-                mt-1
-                transition-transform
-                duration-300
-                ease-out
-                group-hover:translate-y-1
+        <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 50 }}
+            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1, ease: 'easeOut' }}
+            className="
+                xl:max-w-7xl
+                lg:max-w-5xl lg:px-10
+                md:max-w-3xl md:px-4 md:py-6
+                sm:max-w-xl
+                w-screen
+                bg-slate-200
+                py-6
+                rounded-xl
+                shadow-lg
+                mb-14
+                mx-auto
             "
-                >
-                    <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M15.75 17.25 12 21m0 0-3.75-3.75M12 21V3"
-                    />
-                </svg>
-            </span>
-
-            {isVisible && <MoreInfo {...MoreInfoProps} />}
-        </div>
-    )
-
+        >
+            {isVisible && <MoreInfo visible={isVisible} />}
+        </motion.div>
+    );
 }

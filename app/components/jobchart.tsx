@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import GetData from '../api/blsdata';
-import InfoContainer from './infocontainer';
 
 import {
     LineChart,
@@ -50,7 +49,11 @@ export interface MergedItem {
     dollars: number | null;
 }
 
-export default function JobChart() {
+type JobChartProps = {
+    isMounted: () => void;
+}
+
+export default function JobChart({ isMounted }: JobChartProps) {
     const [mergedData, setMergedData] = useState<MergedItem[] | null>(null);
     const [showCreationData, setShowCreationData] = useState<boolean>(false);
     const [showCPIData, setShowCPIData] = useState<boolean>(false);
@@ -94,12 +97,13 @@ export default function JobChart() {
             } catch (err) {
                 setError(String(err));
             } finally {
+                isMounted();
                 setLoading(false);
             }
         }
 
         load();
-    }, []);
+    }, [isMounted]);
 
     if (loading) {
         return <div role="status" className="mx-auto mb-24">
@@ -116,8 +120,8 @@ export default function JobChart() {
 
     return (
         <section className="flex flex-col max-w-8xl md:mx-auto sm:mx-10">
-            <div className="xl:max-w-7xl lg:max-w-5xl lg:px-10 md:max-w-3xl w-screen bg-white rounded-xl px-4 py-16 shadow-lg mb-20">
-                <ResponsiveContainer width="100%" aspect={2}>
+            <div className="xl:max-w-7xl lg:max-w-5xl lg:px-10 md:max-w-3xl md:px-4 md:py-12 sm:max-w-xl w-screen bg-white py-6 rounded-xl shadow-lg mb-14">
+                <ResponsiveContainer width="100%" aspect={1.7}>
                     <LineChart data={mergedData ?? []}>
                         <CartesianGrid stroke="#eee" strokeDasharray="5 5" />
                         <XAxis dataKey="year" />
@@ -173,35 +177,34 @@ export default function JobChart() {
                 </ResponsiveContainer>
 
                 {/* Toggles */}
-                <label className="flex w-56 mt-10 ml-10">
-                    <input
-                        type="checkbox"
-                        checked={showCreationData}
-                        onChange={() => setShowCreationData(!showCreationData)}
-                    />
-                    <span className="font-sans text-md ml-2">Show job creations</span>
-                </label>
+                <div className="flex md:flex-row flex-col md:items-center md:mt-6 mt-3">
+                    <label className="md:mx-auto mt-10 ml-12">
+                        <input
+                            type="checkbox"
+                            checked={showCreationData}
+                            onChange={() => setShowCreationData(!showCreationData)}
+                        />
+                        <span className="font-sans text-lg ml-2">Show job creations</span>
+                    </label>
 
-                <label className="flex w-56 mt-7 ml-10">
-                    <input
-                        type="checkbox"
-                        checked={showCPIData}
-                        onChange={() => setShowCPIData(!showCPIData)}
-                    />
-                    <span className="font-sans text-md ml-2">Show Consumer Price Index</span>
-                </label>
+                    <label className="md:mx-auto mt-7 ml-12">
+                        <input
+                            type="checkbox"
+                            checked={showCPIData}
+                            onChange={() => setShowCPIData(!showCPIData)}
+                        />
+                        <span className="font-sans text-lg ml-2">Show Consumer Price Index</span>
+                    </label>
 
-                <label className="flex w-56 mt-7 ml-10">
-                    <input
-                        type="checkbox"
-                        checked={showDollarData}
-                        onChange={() => setShowDollarData(!showDollarData)}
-                    />
-                    <span className="font-sans text-md ml-2">Show US dollar value</span>
-                </label>
-            </div>
-            <div className="flex flex-col xl:max-w-7xl lg:max-w-5xl md:max-w-3xl mb-20 bg-slate-200 px-12 py-14 rounded-xl shadow-lg">
-                <InfoContainer />
+                    <label className="md:mx-auto mt-7 ml-12">
+                        <input
+                            type="checkbox"
+                            checked={showDollarData}
+                            onChange={() => setShowDollarData(!showDollarData)}
+                        />
+                        <span className="font-sans text-lg ml-2">Show US dollar value</span>
+                    </label>
+                </div>
             </div>
         </section>
     );
