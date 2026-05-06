@@ -1,5 +1,7 @@
 # Jobs and Inflation
 
+Production URL: jobsandinflation.vercel.app
+
 A modern web application for visualizing and analyzing the relationship between job market data and inflation trends. Built with Next.js and React, this project provides interactive charts and insights into economic indicators.
 
 ## Features
