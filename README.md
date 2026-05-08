@@ -27,9 +27,9 @@ Jobs and Inflation fetches and simplifies complex job creation/loss data sets fr
 
 ## Key Engineering Features
 
-**BLS Data Integration**: Structured data pipeline sourcing layoff, job creation, CPI, and dollar value datasets from the U.S. Bureau of Labor Statistics for consistent, reliable rendering.
-**Composable Chart Architecture**: Recharts components are built for reusability and extensibility, making it straightforward to add new economic indicators or date ranges.
-**Tailwind v4 & TypeScript Compatibility**: Resolved CSS module typing via a custom `globals.d.ts` declaration, enabling Tailwind v4's CSS-first config approach alongside strict TypeScript tooling.
+* __BLS Data Integration:__ Structured data pipeline sourcing layoff, job creation, CPI, and dollar value datasets from the U.S. Bureau of Labor Statistics for consistent, reliable rendering.
+* __Composable Chart Architecture:__ Recharts components are built for reusability and extensibility, making it straightforward to add new economic indicators or date ranges.
+* __Tailwind v4 + TypeScript Compatibility:__ Resolved CSS module typing via a custom `globals.d.ts` declaration, enabling Tailwind v4's CSS-first config approach alongside strict TypeScript tooling.
 
 ## Getting Started
 ### Prerequisites
