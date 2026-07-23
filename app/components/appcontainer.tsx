@@ -13,8 +13,8 @@ export default function AppContainer() {
   const handleMounted = useCallback(() => setIsLoading(false), []);
 
   return (
-    <main className="flex flex-col bg-zinc-200/50 dark:bg-slate-950 w-auto m-h-screen">
-      <div className="flex justify-end mt-12 mr-12">
+    <main className="flex flex-col bg-neutral-200 dark:bg-neutral-950 m-h-screen">
+      <div className="flex justify-end mx-8 my-10 md:mx-20">
       <ThemeToggle />
       </div>
       <Header />

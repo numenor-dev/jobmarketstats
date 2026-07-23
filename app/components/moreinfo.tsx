@@ -1,22 +1,9 @@
 'use client';
 
-import { motion } from "motion/react";
-import { ReactNode } from "react";
-
-type WhyMatters = {
-    title: string
-    body: ReactNode
-}[]
-
-type WhyInflation = {
-    title: string
-    body: ReactNode
-    source: {
-        label: string
-        href: string
-    }
-}[]
-
+import { motion, useInView } from "motion/react";
+import { useRef, ReactNode } from "react";
+import { WhyInflation, WhyMatters } from "../lib/types";
+import { ArrowUpRightIcon } from "@heroicons/react/24/solid";
 
 const indicators = [
     {
@@ -50,24 +37,30 @@ const whyMatters: WhyMatters = [
         title: "Inflation's role",
         body: (
             <>
+
                 CPI helps illustrate the true mathematical level of{" "}
-                <a href="https://www.bls.gov/data/inflation_calculator.htm" className="underline text-red-700 dark:text-red-500/90 text-sm">
+
+                <a href="https://www.bls.gov/data/inflation_calculator.htm"
+                    className="underline text-red-700 dark:text-red-500/90 text-sm">
+
                     inflation
                 </a>
-                , which affects purchasing power. Even if jobs are created, high inflation will counteract real income and savings. If a person received an annual raise of 4% but inflation is at 6%, their real income effectively decreased by 2%.
+                , which affects purchasing power.Even if jobs are created, high inflation will
+                counteract real income and savings.If a person received an annual raise of 4 % but
+                inflation is at 6 %, their real income effectively decreased by 2 %.
             </>
         )
     },
     {
         title: "Dollar value",
-        body: "Measuring the dollar value over time shows how much purchasing power an individual has lost. Since 2011, the U.S. dollar has lost roughly 30–35% of its purchasing power — $100 in 2011 is worth about $65 today."
+        body: "Measuring the dollar value over time shows how much purchasing power an individual has lost. Since 2011, the U.S. dollar has lost roughly 30-35% of its purchasing power - $100 in 2011 is worth about $65 today."
     }
 ];
 
 const whyInflation: WhyInflation = [
     {
         title: "Excessive money creation by central banks",
-        body: "When the total amount of money grows faster than the production of goods and services, more dollars compete for the same amount of goods. Since 2011, over $10 trillion has been created physically and digitally — it took over 200 years to create the first $12 trillion.",
+        body: "When the total amount of money grows faster than the production of goods and services, more dollars compete for the same amount of goods. Since 2011, over $10 trillion has been created physically and digitally - it took over 200 years to create the first $12 trillion.",
         source: { label: "Federal Reserve Economic Data (FRED)", href: "https://fred.stlouisfed.org/series/M2SL" }
     },
     {
@@ -82,95 +75,139 @@ const whyInflation: WhyInflation = [
     },
     {
         title: "Wars",
-        body: "Wars disrupt global supply chains, reduce production, increase energy and food costs, and require significant government spending — these combined pressures often lead to higher inflation both domestically and globally.",
+        body: "Wars disrupt global supply chains, reduce production, increase energy and food costs, and require significant government spending - these combined pressures often lead to higher inflation both domestically and globally.",
         source: { label: "University of Gothenburg", href: "https://www.gu.se/en/news/war-and-conflict-often-lead-to-high-inflation" }
     }
 ];
 
+const chatColors = ["#ef4444", "#10b981", "#3b82f6", "#f59e0b"];
+
 function SectionLabel({ children }: { children: ReactNode }) {
     return (
-        <div className="flex items-center gap-3 mt-16 mb-6">
-            <span className="block w-1 h-6 rounded-full" />
-            <h2 className="font-sans font-semibold text-xl tracking-tight text-zinc-800 dark:text-zinc-200">{children}</h2>
+        <div className="mt-16 mb-8">
+            <motion.div
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                style={{ transformOrigin: "left" }}
+            />
+            <h2 className="text-xs font-mono tracking-[0.2em] uppercase text-zinc-700 dark:text-zinc-400">
+                {children}
+            </h2>
         </div>
     );
 }
 
 export default function MoreInfo() {
-    return (
-        <div className="flex flex-col max-w-5xl mx-auto px-4">
+    const ref = useRef<HTMLDivElement>(null);
+    const isVisible = useInView(ref, { once: true, amount: 0.2 });
 
-            {/* Animated header */}
-            <motion.h1
-                className="relative lg:max-w-7xl md:max-w-2xl max-w-sm mx-auto p-3 font-sans font-extrabold rounded-md text-3xl mt-7 overflow-hidden"
-            >
-                <motion.span
-                    initial={{ scaleX: 0, y: 2, rotate: -0.8 }}
-                    animate={{ scaleX: 1, y: [2, -1, 1, 0], rotate: [-0.5, 0.3, -0.2, 0] }}
-                    transition={{
-                        scaleX: { duration: 1.6, ease: "easeOut" },
-                        y: { duration: 1.6, ease: "easeInOut" },
-                        rotate: { duration: 1.6, ease: "easeInOut" }
-                    }}
-                    className="absolute inset-0 bg-emerald-500/50 dark:bg-emerald-400/30 rounded-2xl"
-                    style={{ transformOrigin: "left" }}
-                />
-                <span className="relative z-10 dark:text-zinc-300/80">
-                    This chart visualizes four major economic indicators in the US from 2011 to 2026:
-                </span>
-            </motion.h1>
+    return (
+        <div ref={ref} className="flex flex-col">
 
             {/* Indicator cards */}
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {indicators.map((item, i) => (
-                    <motion.div
-                        key={item.num}
-                        initial={{ opacity: 0, y: 16 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.15 + i * 0.1, duration: 0.5, ease: "easeOut" }}
-                        className="relative rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-700/50 p-5 overflow-hidden"
-                    >
-                        <span className="absolute top-2 right-3 font-sans font-black text-3xl text-zinc-200 dark:text-zinc-700 select-none leading-none">
-                            {item.num}
-                        </span>
-                        <h3 className="font-sans font-semibold text-lg mb-2 relative z-10 pr-10 dark:text-zinc-200">{item.title}</h3>
-                        <p className="font-sans text-base text-zinc-600 dark:text-zinc-300/80 leading-relaxed relative z-10">{item.body}</p>
-                    </motion.div>
-                ))}
+            <div className="mt-10 flex flex-col gap-3">
+                {indicators.map((item, i) => {
+                    const color = chatColors[i];
+                    return (
+                        <motion.div
+                            key={item.num}
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={isVisible ? { opacity: 1, y: 0 } : {}}
+                            transition={{ delay: 0.15 + i * 0.1, duration: 0.45, ease: "easeOut" }}
+                            className="relative rounded-xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-md"
+                        >
+                            <motion.div
+                                initial={{ scaleX: 0 }}
+                                animate={isVisible ? { scaleX: 1 } : {}}
+                                transition={{ delay: 0.3 + i * 0.1, duration: 0.45, ease: "easeOut" }}
+                                style={{ backgroundColor: color, transformOrigin: "left" }}
+                                className="h-0.5 w-full"
+                            />
+                            <div className="flex gap-4 p-6">
+                                <div className="flex-1">
+                                    <div className="flex items-center gap-2 mb-1.5">
+                                        <span
+                                            className="w-2 h-2 rounded-full shrink-0"
+                                            style={{ backgroundColor: color }}
+                                        />
+                                        <h3 className="font-semibold text-lg text-zinc-800 dark:text-zinc-200">
+                                            {item.title}
+                                        </h3>
+                                    </div>
+                                    <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                                        {item.body}
+                                    </p>
+                                </div>
+                            </div>
+                        </motion.div>
+                    );
+                })}
             </div>
 
             {/* Why they matter */}
             <SectionLabel>Why do these indicators matter together?</SectionLabel>
-            <div className="flex flex-col divide-y divide-zinc-200 dark:divide-zinc-700 border border-zinc-200 dark:border-zinc-700 rounded-xl overflow-hidden">
-                {whyMatters.map((item) => (
-                    <div key={item.title} className="px-5 py-4 bg-zinc-50 dark:bg-slate-800/80">
-                        <h3 className="font-sans font-semibold text-lg text-zinc-800 dark:text-zinc-300 mb-1">{item.title}</h3>
-                        <p className="font-sans text-base text-zinc-700 dark:text-zinc-400 leading-relaxed">{item.body}</p>
-                    </div>
+            <div className="flex flex-col gap-3">
+                {whyMatters.map((item, i) => (
+                    <motion.div
+                        key={item.title}
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, amount: 0.3 }}
+                        transition={{ delay: i * 0.09, duration: 0.4, ease: "easeOut" }}
+                        className="rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 px-5 py-4"
+                    >
+                        <h3 className="font-semibold text-lg text-zinc-800 dark:text-zinc-200 mb-1">
+                            {item.title}
+                        </h3>
+                        <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                            {item.body}
+                        </p>
+                    </motion.div>
                 ))}
             </div>
 
             {/* Why inflation occurs */}
-            <SectionLabel>Why does inflation even occur?</SectionLabel>
-            <div className="flex flex-col gap-4">
-                {whyInflation.map((item) => (
-                    <div key={item.title} className="pl-4 border-l-2 border-emerald-400/80 dark:border-emerald-500">
-                        <h3 className="font-sans font-semibold text-lg mb-1 dark:text-zinc-300">{item.title}</h3>
-                        <p className="font-sans text-base text-zinc-700 dark:text-zinc-400 leading-relaxed">{item.body}</p>
+            <SectionLabel>Why does inflation occur?</SectionLabel>
+            <div className="flex flex-col gap-6">
+                {whyInflation.map((item, i) => (
+                    <motion.div
+                        key={item.title}
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ delay: i * 0.08, duration: 0.4 }}
+                        className="relative pl-5"
+                    >
+                        <motion.div
+                            initial={{ scaleY: 0 }}
+                            whileInView={{ scaleY: 1 }}
+                            viewport={{ once: true, amount: 0.2 }}
+                            transition={{ delay: i * 0.08, duration: 0.4, ease: "easeOut" }}
+                            style={{ transformOrigin: "top" }}
+                            className="absolute left-0 top-0 bottom-0 w-0.5 rounded-full bg-emerald-400 dark:bg-emerald-500"
+                        />
+                        <h3 className="font-semibold text-lg text-zinc-800 dark:text-zinc-300 mb-1">
+                            {item.title}
+                        </h3>
+                        <p className="text-base text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                            {item.body}
+                        </p>
                         {item.source && (
-                            <a
-                            
-                                href={item.source.href}
+
+                            <a href={item.source.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-block mt-1 text-sm text-sky-600 dark:text-sky-400 hover:underline"
+                                className="inline-flex items-center gap-1 mt-2 text-xs text-sky-700 dark:text-sky-400 hover:underline"
                             >
-                                {item.source.label}
+                                <ArrowUpRightIcon className="size-3" />
+                                <span>{item.source.label}</span>
                             </a>
                         )}
-                    </div>
+                    </motion.div>
                 ))}
             </div>
-        </div>
+        </div >
     );
 }

@@ -2,9 +2,11 @@
 
 export default function Header() {
     return (
-        <header className="mx-auto flex flex-col sm:max-w-2xl md:max-w-4xl lg:max-w-6xl xl:max-w-7xl">
-            <h1 className="mt-28 text-center text-4xl md:text-5xl font-bold lg:text-6xl dark:text-zinc-300 px-5">US Jobs and Inflation Report</h1>
-            <p className="sm:mx-auto mx-8 mt-7 mb-16 font-sans text-lg md:text-xl lg:max-w-3xl md:max-w-xl max-w-md lg:text-2xl dark:text-zinc-300">
+        <header className="mx-auto flex flex-col max-w-7xl px-10 mb-10 md:px-20 md:mb-12">
+            <h1 className="text-center tracking-tight text-2xl md:text-3xl lg:text-4xl font-bold dark:text-zinc-300 px-5">
+                US Jobs and Inflation Report
+                </h1>
+            <p className="mt-5 mx-auto text-center text-sm md:text-base lg:text-lg dark:text-zinc-300">
                 Layoff and job creations in the US since 2011 measured against the Consumer Price Index (CPI) and the value of the US dollar.
             </p>
         </header>
