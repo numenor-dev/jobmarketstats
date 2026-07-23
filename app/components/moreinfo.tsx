@@ -3,6 +3,7 @@
 import { motion, useInView } from "motion/react";
 import { useRef, ReactNode } from "react";
 import { WhyInflation, WhyMatters } from "../lib/types";
+import { chartColors } from "./jobchart";
 import { ArrowUpRightIcon } from "@heroicons/react/24/solid";
 
 const indicators = [
@@ -80,8 +81,6 @@ const whyInflation: WhyInflation = [
     }
 ];
 
-const chatColors = ["#ef4444", "#10b981", "#3b82f6", "#f59e0b"];
-
 function SectionLabel({ children }: { children: ReactNode }) {
     return (
         <div className="mt-16 mb-8">
@@ -99,6 +98,13 @@ function SectionLabel({ children }: { children: ReactNode }) {
     );
 }
 
+const indicatorColors = [
+    chartColors.layoffs,
+    chartColors.creations,
+    chartColors.cpi,
+    chartColors.dollars
+]
+
 export default function MoreInfo() {
     const ref = useRef<HTMLDivElement>(null);
     const isVisible = useInView(ref, { once: true, amount: 0.2 });
@@ -109,13 +115,13 @@ export default function MoreInfo() {
             {/* Indicator cards */}
             <div className="mt-10 flex flex-col gap-3">
                 {indicators.map((item, i) => {
-                    const color = chatColors[i];
+                    const color = indicatorColors[i];
                     return (
                         <motion.div
                             key={item.num}
                             initial={{ opacity: 0, y: 16 }}
                             animate={isVisible ? { opacity: 1, y: 0 } : {}}
-                            transition={{ delay: 0.15 + i * 0.1, duration: 0.45, ease: "easeOut" }}
+                            transition={{ delay: 0.2 + i * 0.2, duration: 0.45, ease: "easeOut" }}
                             className="relative rounded-xl overflow-hidden bg-white dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 shadow-md"
                         >
                             <motion.div
@@ -146,7 +152,6 @@ export default function MoreInfo() {
                 })}
             </div>
 
-            {/* Why they matter */}
             <SectionLabel>Why do these indicators matter together?</SectionLabel>
             <div className="flex flex-col gap-3">
                 {whyMatters.map((item, i) => (
@@ -155,7 +160,7 @@ export default function MoreInfo() {
                         initial={{ opacity: 0, x: -10 }}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true, amount: 0.3 }}
-                        transition={{ delay: i * 0.09, duration: 0.4, ease: "easeOut" }}
+                        transition={{ delay: i * 0.09, duration: 0.6, ease: "easeOut" }}
                         className="rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-100 dark:border-zinc-800 px-5 py-4"
                     >
                         <h3 className="font-semibold text-lg text-zinc-800 dark:text-zinc-200 mb-1">
@@ -168,7 +173,6 @@ export default function MoreInfo() {
                 ))}
             </div>
 
-            {/* Why inflation occurs */}
             <SectionLabel>Why does inflation occur?</SectionLabel>
             <div className="flex flex-col gap-6">
                 {whyInflation.map((item, i) => (

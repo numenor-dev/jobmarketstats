@@ -1,42 +1,99 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'motion/react';
 import { useTheme } from 'next-themes';
 import { useWindowSize } from '../hooks/useWindowSize';
 import { toNumberOrNull, numberFormatter } from '../utils/formatters';
-
 import {
-    LineChart,
-    Line,
-    CartesianGrid,
-    XAxis,
-    YAxis,
-    Tooltip,
-    Legend,
-    ResponsiveContainer,
+    LineChart, Line, CartesianGrid, XAxis, YAxis,
+    Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import { DataApiResponse, JobChartProps, MergedItem } from '../lib/types';
+import LoadingRipple from './ui/ripple';
 
-const formatter = numberFormatter;
+export const chartColors = {
+    layoffs: '#FF0000',
+    creations: '#3BD452',
+    cpi: '#E8A70E',
+    dollars: '#2557CC',
+} as const;
+
+function DataToggle({
+    label,
+    checked,
+    color,
+    onChange,
+}: {
+    label: string;
+    checked: boolean;
+    color: string;
+    onChange: () => void;
+}) {
+    return (
+        <button
+            onClick={onChange}
+            aria-pressed={checked}
+            className="flex items-center gap-3 group cursor-pointer"
+        >
+            <div
+                style={{
+                    width: 40,
+                    height: 22,
+                    borderRadius: 22,
+                    padding: 3,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: checked ? 'flex-end' : 'flex-start',
+                    border: `1.5px solid ${checked ? color : '#9ca3af'}`,
+                    backgroundColor: checked ? `${color}22` : 'transparent',
+                    transition: 'border-color 0.2s, background-color 0.2s',
+                    flexShrink: 0,
+                }}
+            >
+                <motion.div
+                    layout
+                    transition={{ type: 'spring', visualDuration: 0.2, bounce: 0.2 }}
+                    style={{
+                        width: 12,
+                        height: 12,
+                        borderRadius: '50%',
+                        backgroundColor: checked ? color : '#9ca3af',
+                        transition: 'background-color 0.2s',
+                    }}
+                />
+            </div>
+
+            {/* Label with colored dot */}
+            <div className="flex items-center gap-2">
+                <span
+                    className="w-2 h-2 rounded-full shrink-0 transition-opacity duration-200"
+                    style={{ backgroundColor: color, opacity: checked ? 1 : 0.35 }}
+                />
+                <span className="text-sm font-medium text-zinc-700 dark:text-zinc-300 group-hover:text-zinc-900 dark:group-hover:text-zinc-100 transition-colors">
+                    {label}
+                </span>
+            </div>
+        </button>
+    );
+}
 
 export default function JobChart({ isMounted }: JobChartProps) {
     const [mergedData, setMergedData] = useState<MergedItem[] | null>(null);
-    const [showCreationData, setShowCreationData] = useState<boolean>(false);
-    const [showCPIData, setShowCPIData] = useState<boolean>(false);
-    const [showDollarData, setShowDollarData] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true);
+    const [showCreationData, setShowCreationData] = useState(false);
+    const [showCPIData, setShowCPIData] = useState(false);
+    const [showDollarData, setShowDollarData] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const { isMobile, isTablet } = useWindowSize();
-
     const { resolvedTheme } = useTheme();
     const prefersDark = resolvedTheme === 'dark';
-
 
     useEffect(() => {
         async function load() {
             try {
-                const res = await fetch('/api/blsdata')
+                const res = await fetch('/api/blsdata');
                 const data: DataApiResponse = await res.json();
 
                 const layoffs = data.layoffTotal ?? [];
@@ -44,21 +101,13 @@ export default function JobChart({ isMounted }: JobChartProps) {
                 const cpi = data.cpiTotal ?? [];
                 const dollars = data.dollarStrength ?? [];
 
-                const merged: MergedItem[] = layoffs.map(l => {
-                    const year = l.year;
-                    const creation = creations.find(c => c.year === year);
-                    const cpiItem = cpi.find(c => c.year === year);
-                    const dollarItem = dollars.find(d => d.year === year);
-
-
-                    return {
-                        year,
-                        layoffs: toNumberOrNull(l.layoffs) ?? 0,
-                        creations: toNumberOrNull(creation?.creations) ?? null,
-                        cpi: toNumberOrNull(cpiItem?.CPI) ?? null,
-                        dollars: toNumberOrNull(dollarItem?.dollarValue) ?? null
-                    };
-                });
+                const merged: MergedItem[] = layoffs.map(l => ({
+                    year: l.year,
+                    layoffs: toNumberOrNull(l.layoffs) ?? 0,
+                    creations: toNumberOrNull(creations.find(c => c.year === l.year)?.creations) ?? null,
+                    cpi: toNumberOrNull(cpi.find(c => c.year === l.year)?.CPI) ?? null,
+                    dollars: toNumberOrNull(dollars.find(d => d.year === l.year)?.dollarValue) ?? null,
+                }));
 
                 setMergedData(merged);
             } catch (err) {
@@ -73,29 +122,28 @@ export default function JobChart({ isMounted }: JobChartProps) {
     }, [isMounted]);
 
     if (loading) {
-        return <div role="status" className="mx-auto min-h-screen">
-            <svg aria-hidden="true" className="w-8 h-8 text-neutral-tertiary animate-spin fill-blue-500" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="lightgray" />
-                <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill" />
-            </svg>
-            <span className="sr-only">Loading...</span>
-        </div>;
+        return (
+            <div role="status" className="min-h-screen">
+                <LoadingRipple />
+            </div>
+        );
     }
+
     if (error) {
         return <div className="mb-20 text-red-500">Error: {error}</div>;
     }
 
     return (
-        <section className="flex flex-col max-w-7xl md:mx-auto px-5">
-            <div className="xl:max-w-7xl lg:max-w-5xl lg:px-10 md:max-w-3xl px-5 md:py-12 bg-white dark:bg-sky-950/90 md:w-screen w-full py-5 rounded-xl shadow-lg mb-14">
-                <ResponsiveContainer width="100%" height={isMobile ? 300 : 570}>
+        <section className="w-full max-w-7xl mx-auto px-4 sm:px-6">
+            <div className="w-full bg-white dark:bg-sky-950/90 rounded-xl shadow-lg px-3 py-5 sm:px-6 sm:py-8 md:px-10 md:py-10 mb-14">
+                <ResponsiveContainer width="100%" height={isMobile ? 260 : 520}>
                     <LineChart
                         data={mergedData ?? []}
                         margin={{
                             top: 5,
-                            left: isMobile ? 0 : 30,
+                            left: isMobile ? -10 : 20,
                             bottom: 5,
-                            right: isMobile ? 0 : 0
+                            right: isMobile ? 0 : 10,
                         }}
                     >
                         <CartesianGrid
@@ -106,120 +154,68 @@ export default function JobChart({ isMounted }: JobChartProps) {
                             dataKey="year"
                             angle={-45}
                             textAnchor="end"
-                            height={60}
-                            tick={{ fontSize: isMobile ? 11 : 14, fill: prefersDark ? '#cbd5e1' : '#666' }}
+                            height={55}
+                            tick={{ fontSize: isMobile ? 10 : 13, fill: prefersDark ? '#cbd5e1' : '#666' }}
                             interval={isMobile ? 4 : isTablet ? 2 : 1}
                         />
                         <YAxis
                             yAxisId="left"
-                            width={isMobile ? 45 : 50}
-                            tick={{ fontSize: isMobile ? 11 : 14, fill: prefersDark ? '#cbd5e1' : '#666' }}
+                            width={isMobile ? 38 : 50}
+                            tick={{ fontSize: isMobile ? 10 : 13, fill: prefersDark ? '#cbd5e1' : '#666' }}
                             tickFormatter={(value) =>
                                 isMobile
                                     ? `${(value / 1000).toFixed(0)}k`
-                                    : formatter.format(value)
+                                    : numberFormatter.format(value)
                             }
                         />
                         <YAxis
                             yAxisId="right"
                             orientation="right"
-                            width={isMobile ? 24 : 35}
-                            tick={{ fontSize: isMobile ? 11 : 14, fill: prefersDark ? '#cbd5e1' : '#666' }}
+                            width={isMobile ? 22 : 35}
+                            tick={{ fontSize: isMobile ? 10 : 13, fill: prefersDark ? '#cbd5e1' : '#666' }}
                         />
                         <Tooltip
                             formatter={(value) =>
-                                typeof value === 'number' ? formatter.format(value) : value
+                                typeof value === 'number' ? numberFormatter.format(value) : value
                             }
-                            wrapperStyle={{ fontSize: isMobile ? '12px' : '14px' }}
+                            wrapperStyle={{ fontSize: isMobile ? '11px' : '13px' }}
                             contentStyle={{
                                 backgroundColor: prefersDark ? '#1e293b' : '#fff',
                                 borderColor: prefersDark ? '#475569' : '#e2e8f0',
                                 color: prefersDark ? '#f1f5f9' : '#111',
+                                borderRadius: '8px',
                             }}
                         />
                         <Legend
                             wrapperStyle={{
-                                fontSize: isMobile ? '12px' : '14px',
+                                fontSize: isMobile ? '11px' : '13px',
                                 color: prefersDark ? '#cbd5e1' : '#666',
+                                paddingTop: isMobile ? '8px' : '12px',
                             }}
                         />
-                        <Line
-                            yAxisId="left"
-                            type="monotone"
-                            dataKey="layoffs"
-                            name="Job layoffs"
-                            stroke="#ED3009"
-                            strokeWidth={2}
-                        />
-
+                        <Line yAxisId="left" type="monotone" dataKey="layoffs" name="Job layoffs" stroke={chartColors.layoffs} strokeWidth={2} dot={false} />
                         {showCreationData && (
-                            <Line
-                                yAxisId="left"
-                                type="monotone"
-                                dataKey="creations"
-                                name="Job creations"
-                                stroke="#3BD452"
-                                strokeWidth={2}
-                            />
+                            <Line yAxisId="left" type="monotone" dataKey="creations" name="Job creations" stroke={chartColors.creations} strokeWidth={2} dot={false} />
                         )}
-
                         {showCPIData && (
-                            <Line
-                                yAxisId="right"
-                                type="monotone"
-                                dataKey="cpi"
-                                name="Average annual CPI"
-                                stroke="#AD5C5C"
-                                strokeWidth={2}
-                                dot={false}
-                            />
+                            <Line yAxisId="right" type="monotone" dataKey="cpi" name="Average annual CPI" stroke={chartColors.cpi} strokeWidth={2} dot={false} />
                         )}
-
                         {showDollarData && (
-                            <Line
-                                yAxisId="right"
-                                type="monotone"
-                                dataKey="dollars"
-                                name="US dollar value"
-                                stroke="#2557CC"
-                                strokeWidth={2}
-                                dot={false}
-                            />
+                            <Line yAxisId="right" type="monotone" dataKey="dollars" name="US dollar value" stroke={chartColors.dollars} strokeWidth={2} dot={false} />
                         )}
                     </LineChart>
                 </ResponsiveContainer>
 
                 {/* Toggles */}
-                <div className="flex md:flex-row flex-col md:items-center mt-12 gap-y-3">
-                    <label className="md:mx-auto md:ml-12 ml-4">
-                        <input
-                            type="checkbox"
-                            checked={showCreationData}
-                            className="h-3.5 w-3.5"
-                            onChange={() => setShowCreationData(!showCreationData)}
-                        />
-                        <span className="font-sans text-lg ml-2 text-gray-900 dark:text-slate-200">Show job creations</span>
-                    </label>
-
-                    <label className="md:mx-auto md:ml-12 ml-4">
-                        <input
-                            type="checkbox"
-                            checked={showCPIData}
-                            className="h-3.5 w-3.5"
-                            onChange={() => setShowCPIData(!showCPIData)}
-                        />
-                        <span className="font-sans text-lg ml-2 text-gray-900 dark:text-slate-200">Show Consumer Price Index</span>
-                    </label>
-
-                    <label className="md:mx-auto md:ml-12 ml-4">
-                        <input
-                            type="checkbox"
-                            checked={showDollarData}
-                            className="h-3.5 w-3.5"
-                            onChange={() => setShowDollarData(!showDollarData)}
-                        />
-                        <span className="font-sans text-lg ml-2 text-gray-900 dark:text-slate-200">Show US dollar value</span>
-                    </label>
+                <div className="mt-8 pt-6 border-t border-zinc-100 dark:border-zinc-700/50">
+                    <p className="text-xs font-mono tracking-[0.15em] uppercase text-zinc-400 dark:text-zinc-500 mb-4">
+                        Add to chart
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <DataToggle label="Job creations" checked={showCreationData} color={chartColors.creations} onChange={() => setShowCreationData(v => !v)} />
+                        <DataToggle label="Consumer Price Index" checked={showCPIData} color={chartColors.cpi} onChange={() => setShowCPIData(v => !v)} />
+                        <DataToggle label="US dollar value" checked={showDollarData} color={chartColors.dollars} onChange={() => setShowDollarData(v => !v)} />
+                    </div>
                 </div>
             </div>
         </section>
